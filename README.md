@@ -21,13 +21,13 @@ The data are highly structured text in 24 languages and fall into eight broad th
 
 # WHY
 
-This project is not [VoteWatch](http://www.votewatch.eu/):
+This project differs from [VoteWatch](http://www.votewatch.eu/) because
 
 1. __The data is as longitudinal as possible__, which currently means 15 years from legislature 5 (1999-2004) to today (legislature 7, 2009-2014). This is useful because parliamentary data are fundamentally interval census (some MEPs are present in all three sessions).
 2. __The focus is neither presence or roll calls__: the data are full paragraphs of full text sentences, spoken or written by MEPs during plenary sessions ('speech acts'). Around 80% of all speech acts were delivered in English (the second most presented EU language, French, ranks at less than 5%).
 3. __The data are aimed at running topic models__, as in [Di Maggio _et al._ 2013](http://www.theculturelab.umd.edu/uploads/1/4/2/2/14225661/exploitingaffinities_dimaggio.pdf) and [Fligstein _et al._ 2014](http://sociology.berkeley.edu/sites/default/files/faculty/fligstein/Why%20the%20Federal%20Reserve%20Failed%20to%20See%20the%20Crisis%20of%202008%20v.2.6.pdf). The grouping variables for spoken/written items are MEPs, party families, procedure codes and Dewey-style thematic classes from the European Parliament Legislative Observatory.
 
-Here's an [introductory blog post](http://politbistro.hypotheses.org/2068), in French.
+Here's an [introductory blog post](http://politbistro.hypotheses.org/2068) to the scraper, in French.
 
 # DEPENDENCIES
 
@@ -79,7 +79,7 @@ Running the makefile returns the following objects to `dtm.rda`:
   * `group`: the party group, simplified (from the MEP's `nfo` file)
   * `sample`: whether the MEP is represented in the data, i.e. ~ 55% of all MEPs
 
-The `subjects.csv` file is a manually processed array of official subject codes extracted from [ParlTrack](http://parltrack.euwiki.org/) data.
+The `subjects.csv` file is a manually processed array of official subject codes extracted from [ParlTrack][parltrack] data.
 
 Please open an issue if you need the proper codebook I did not bother to write.
 
@@ -91,4 +91,7 @@ Please open an issue if you need the proper codebook I did not bother to write.
 # THANKS
 
 * [@jnbptst](https://twitter.com/jnbptst) for comments
-* [Stef](https://github.com/stef) and [Dimiter Toshkov](http://www.dimiter.eu/) for inspiration
+* [@stef](https://github.com/stef) and [@pudo](https://github.com/pudo) for [ParlTrack][parltrack]
+* [Dimiter Toshkov](http://www.dimiter.eu/Eurlex.html) for inspiration
+
+[parltrack]: http://parltrack.euwiki.org/
