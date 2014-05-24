@@ -1,6 +1,8 @@
 # AIM
 
-This set of scripts downloads random [plenary statements][cre] made orally or in writing by [MEPs][dir] from the 5th (1999-2004), 6th (2004-2009) and 7th (2009-2014) terms of the European Parliament. The data are highly structured text in 24 languages and fall into eight broad themes:
+This set of scripts downloads random [plenary statements][cre] made orally or in writing by [MEPs][dir] from the 5th (1999-2004), 6th (2004-2009) and 7th (2009-2014) terms of the European Parliament.
+
+The data are highly structured text in 24 languages and fall into eight broad themes:
 
 |code  |label                                      |
 |:-----|:------------------------------------------|
@@ -46,18 +48,20 @@ Some packages require R 3.0.x, but `scraper.r` can be edited to run on R 2.15.x.
 
 # HOWTO
 
-The main entry point is `make.r`. Adjust the `sample` setting to _n_ / 10 where _n_ is the maximum number of random speech acts that you want to download.
+The main entry point is `make.r`.
+
+Adjust the `sample` setting to _n_ / 10 where _n_ is the maximum number of random plenary statements to download.
 
 # CODEBOOK
 
 Running the makefile returns the following objects to `dtm.rda`:
 
-* The `D` object holds the document-term matrix of all scraped items that were delivered in English (~ 80% of all items).
+* The `D` object holds the document-term matrix of all scraped items that were delivered in English.
 * The `speeches` object holds the speech full text and (selected) metadata:
   * `id`: the MEP unique identifier of the speaker (integer)
   * `leg`: the legislature (integer)
   * `date`: the date of the item (yyyy-mm-dd)
-  * `lang`: the language of the item (2-letter code)
+  * `lang`: the language of the item (2-letter code; 80% of all items are in English)
   * `corpus`: whether the item is part of the document-term matrix (see note)
   * `title`: the title of the speech (often uninformative)
   * `proc`: the procedure code of the speech (used to get the next three columns)
@@ -73,7 +77,7 @@ Running the makefile returns the following objects to `dtm.rda`:
   * `link`: the URL to the MEP profile (used to get the `nfo` columns)
   * `name`: duh
   * `group`: the party group, simplified (from the MEP's `nfo` file)
-  * `sample`: whether the MEP is represented in the data (~ 54% of all MEPs)
+  * `sample`: whether the MEP is represented in the data, i.e. ~ 55% of all MEPs
 
 The `subjects.csv` file is a manually processed array of official subject codes extracted from [ParlTrack](http://parltrack.euwiki.org/) data.
 
