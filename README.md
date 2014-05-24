@@ -1,5 +1,8 @@
-> _Aim_: download random plenary speeches by [MEPs][dir] from the 5th (1999-2004), 6th (2004-2009) and 7th (2009-2014) terms of the European Parliament.
+# AIM
 
+Download random [plenary speeches][cre] by [MEPs][dir] from the 5th (1999-2004), 6th (2004-2009) and 7th (2009-2014) terms of the European Parliament.
+
+[cre]: http://www.europarl.europa.eu/plenary/en/home.html
 [dir]: http://www.europarl.europa.eu/meps/en/directory.html
 
 # WHY
@@ -29,15 +32,11 @@ Some packages require R 3.0.x, but `scraper.r` can be edited to run on R 2.15.x.
 
 # HOWTO
 
-The main entry point is `make.r`. Adjust the `sample` setting to _n_ / 5 where _n_ is the maximum number of random speech acts that you want to download.
-
-There were roughly 270,000 speech acts as of May 2014, so setting `sample` to `75000` should get you almost all available speech acts for legislatures 5–7.
-
-The default setting gets 5,000 items by iterating 5 times over 1,000 items, to fix network errors. Please let me know if you need a more workable version.
+The main entry point is `make.r`. Adjust the `sample` setting to _n_ / 10 where _n_ is the maximum number of random speech acts that you want to download.
 
 # CODEBOOK
 
-The makefile returns the following objects to `dtm.rda`:
+Running the makefile returns the following objects to `dtm.rda`:
 
 * The `D` object holds the document-term matrix of all scraped items that were delivered in English (~ 80% of all items).
 * The `speeches` object holds the speech full text and (selected) metadata:
