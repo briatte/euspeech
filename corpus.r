@@ -50,6 +50,26 @@ D = D[ row_sums(D) > 0, ]
 summary(col_sums(D))
 print(D) # document-term matrix with a reduced vocabulary
 
-save(meps, speeches, D, file = "dtm.rda")
+# finalize
+
+speeches$subj = gsub("^(\\.|\\s)+(.*)", "\\2", speeches$subj)
+speeches$subj = gsub("dot", ".", gsub("[[:punct:]]", "", gsub("\\.","dot", speeches$subj)))
+
+speeches$date = as.Date(speeches$date, "%d-%m-%Y")
+speeches$lang = substr(speeches$lang, 1, 2)
+
+speeches = speeches[, c("id", "leg", "date", "lang", "corpus", "title", "proc", "subj", "also", "oeil", "polarity", "titleUrl", "referenceList", "text") ]
+
+# subject labels
+
+subjects = na.omit(unlist(strsplit(speeches$subj, " ")))
+subjects = as.data.frame(table(subjects))
+names(subjects) = c("code", "n")
+
+labels = read.csv("subjects.csv", stringsAsFactors = FALSE)
+subjects = merge(labels, subjects, by = "code")
+subjects = subjects[ order(sort(subjects$code)), ]
+
+save(D, speeches, meps, subjects, file = "dtm.rda")
 
 # kthxbye
