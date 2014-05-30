@@ -4,7 +4,7 @@
 
 if(!file.exists("speeches.csv")) {
 
-  msg("Initializing main dataset...")
+  msg("\nInitializing main dataset...")
   speeches = read.csv("cre.csv", stringsAsFactors = FALSE)
   
   speeches$lang = NA # language
@@ -17,7 +17,7 @@ if(!file.exists("speeches.csv")) {
 
   } else {
 
-  msg("Pre-loading main dataset...")
+  msg("\nPre-loading main dataset...")
   speeches = read.csv("speeches.csv", stringsAsFactors = FALSE)
 
 }
@@ -25,7 +25,7 @@ if(!file.exists("speeches.csv")) {
 msg("Missing:", sum(is.na(speeches$text)), "full text items,",
     round(100 * sum(is.na(speeches$text)) / nrow(speeches), 1), "% of total")
 
-j = unique(speeches$titleUrl)
+j = unique(speeches$titleUrl[ is.na(speeches$text) ])
 z = 60 # sleep time for occasional HTTP errors (secs)
 
 # AFINN

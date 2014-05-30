@@ -1,3 +1,5 @@
+msg("\nWriting out corpus...")
+
 # MEP names as stopwords
 
 sw = tolower(unlist(strsplit(meps$name, " ")))
@@ -34,6 +36,8 @@ if(length(q)) {
 D = DocumentTermMatrix(D, control = list(stemming = TRUE, stopwords = sw, minWordLength = 4))
 
 dim(D) # first dimension is number of docs
+
+msg("\nDensity of initial corpus:")
 print(summary(col_sums(D)))
 
 # mean term frequency-inverse document frequency (tf-idf)
@@ -42,12 +46,17 @@ term_tfidf =
   tapply(D$v/row_sums(D)[D$i], D$j, mean) *
   log2(nDocs(D) / col_sums(D > 0))
 
-summary(term_tfidf) # use median to trim most frequent words
+# slightly above median to trim to most frequent words (Grün and Hornik 2011)
+msg("\nSummary of tf-idf (trimming at .12):")
+print(summary(term_tfidf))
 
-D = D[, term_tfidf >= 0.1 ]
+D = D[, term_tfidf >= .12 ] # value set after inspecting ~ 65,000 documents
 D = D[ row_sums(D) > 0, ]
 
-summary(col_sums(D))
+msg("\nDensity of reduced corpus:")
+print(summary(col_sums(D)))
+
+msg("\nPostprocessed matrix:")
 print(D) # document-term matrix with a reduced vocabulary
 
 # finalize

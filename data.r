@@ -161,7 +161,7 @@ build <- function(x) {
   return(rbind.fill(x)[, -1])
 }
 
-msg("Postprocessing MEPs data...")
+# msg("Postprocessing MEPs data...")
 
 if(!file.exists("nfo.csv") | update) {
   nfo = build("nfo")
