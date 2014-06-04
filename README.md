@@ -1,4 +1,4 @@
-# AIM
+# README
 
 This set of scripts downloads random [plenary statements][cre] made orally or in writing by [MEPs][dir] from the 5th (1999-2004), 6th (2004-2009) and 7th (2009-2014) terms of the European Parliament.
 
