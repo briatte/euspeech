@@ -2,7 +2,7 @@
 
 This set of scripts downloads random [plenary statements][cre] made orally or in writing by [MEPs][dir] from the 5th (1999-2004), 6th (2004-2009) and 7th (2009-2014) terms of the European Parliament.
 
-The data are highly structured text in 24 languages and fall into eight broad themes:
+The data are highly structured text in 24 languages. Roughly half of the data (148,191 speeches) were submitted to plenary debates. The other half falls into one or more of eight broad subjects:
 
 |code  |label                                      |
 |:-----|:------------------------------------------|
@@ -19,6 +19,59 @@ The data are highly structured text in 24 languages and fall into eight broad th
 [dir]: http://www.europarl.europa.eu/meps/en/directory.html
 [slim]: http://ec.europa.eu/internal_market/simplification/index_en.htm
 
+Here are counts of speech items by subject for the full data collected up to May 20, 2014:
+
+|code   |label                                                     |      n|
+|:------|:---------------------------------------------------------|------:|
+|1.10   |Fundamental rights in the Union, Charter                  |   1288|
+|1.20   |Citizen's rights                                          |   4020|
+|2.10   |Free movement of goods                                    |   4107|
+|2.20   |Free movement of persons                                  |    922|
+|2.30   |Free movement of workers                                  |    342|
+|2.40   |Free movement of services, freedom to provide             |   1954|
+|2.50   |Free movement of capital                                  |  21411|
+|2.60   |Competition                                               |   2903|
+|2.70   |Taxation                                                  |   1424|
+|2.80   |Cooperation between administrations                       |   1060|
+|3.10   |Agricultural policy and economies                         |  16089|
+|3.15   |Fisheries policy                                          |   6403|
+|3.20   |Transport policy in general                               |  18906|
+|3.30   |Information and communications in general                 |   4284|
+|3.40   |Industrial policy                                         |  10528|
+|3.45   |Enterprise policy, inter-company cooperation              |   5526|
+|3.50   |Research and technological development RTD                |   6532|
+|3.60   |Energy policy                                             |  12670|
+|3.70   |Environmental policy                                      |  28307|
+|4.10   |Social policy, social charter and protocol                |  12737|
+|4.15   |Employment policy, action to combat unemployment          |  10232|
+|4.20   |Public health                                             |   8100|
+|4.30   |Civil protection                                          |    149|
+|4.40   |Education, vocational training and youth                  |   4615|
+|4.45   |Common cultural area, cultural diversity                  |   2588|
+|4.50   |Tourism                                                   |    738|
+|4.60   |Consumers' protection in general                          |  11003|
+|4.70   |Regional policy                                           |   3050|
+|5.03   |World economy and globalisation                           |   1896|
+|5.05   |Sustainable development and growth                        |   1659|
+|5.10   |Economic union                                            |   2521|
+|5.20   |Monetary union                                            |   3470|
+|6.10   |Common foreign and security policy (CFSP)                 |  12372|
+|6.20   |Common commercial policy in general                       |  24844|
+|6.30   |Development cooperation                                   |   7352|
+|6.40   |Relations with third countries                            |  13734|
+|6.50   |Emergency, food, humanitarian aid, aid to refugees        |   1109|
+|7.10   |Free movement and integration of third-country nationals  |   5794|
+|7.30   |Police, judicial and customs cooperation in general       |   5012|
+|7.40   |Judicial cooperation                                      |   2663|
+|7.90   |Justice and home affairs                                  |     56|
+|8.10   |Revision of the Treaties, intergovernmental conferences   |    943|
+|8.20   |Enlargement of the Union                                  |   2842|
+|8.30   |Treaties in general                                       |    178|
+|8.40   |Institutions of the Union                                 |   8861|
+|8.50   |EU law                                                    |   2668|
+|8.60   |European statistical legislation                          |   2338|
+|8.70   |Budget of the Union                                       |   9882|
+
 # WHY
 
 This project differs from [VoteWatch](http://www.votewatch.eu/) because
@@ -29,34 +82,22 @@ This project differs from [VoteWatch](http://www.votewatch.eu/) because
 
 Here's an [introductory blog post](http://politbistro.hypotheses.org/2068) to the scraper, in French.
 
-# DEPENDENCIES
-
-The scripts require the following packages:
-
-```{S}
-library(XML)       # parser for HTML web pages
-library(jsonlite)  # parser for JSON results
-library(plyr)      # data manipulation
-library(dplyr)     # fast data manipulation
-library(slam)      # simple triplet matrix representation
-library(tm)        # document-term matrix representation
-library(SnowballC) # stemmer
-library(qdap)      # polarity
-```
-
-Some packages require R 3.0.x, but `scraper.r` can be edited to run on R 2.15.x.
-
 # HOWTO
 
-The main entry point is `make.r`.
+You will need R.
 
-Adjust the `sample` setting to _n_ / 10 where _n_ is the maximum number of random plenary statements to download.
+The main entry point is `make.r`. Some packages require R 3.0.x, but `scraper.r` can be edited to run on R 2.15.x.
+
+Adjust the `sample` setting to _n_, where _n_ is the maximum number of random plenary statements to download.
+
+Running with `sample` set to `FALSE` will try to download the entire data, which takes several complete days.
 
 # CODEBOOK
 
 Running the makefile returns the following objects to `dtm.rda`:
 
-* The `D` object holds the document-term matrix of all scraped items that were delivered in English.
+* The `DTM` object holds a reduced document-term matrix of all scraped items that were delivered in English.
+* The `D` object contains the lexicalized vocabulary of the speeches, based on the reduced document-term matrix.
 * The `speeches` object holds the speech full text and (selected) metadata:
   * `id`: the MEP unique identifier of the speaker (integer)
   * `leg`: the legislature (integer)
@@ -76,6 +117,7 @@ Running the makefile returns the following objects to `dtm.rda`:
   * `id`: the MEP unique identifier (integer, taken from the next column)
   * `link`: the URL to the MEP profile (used to get the `nfo` columns)
   * `name`: duh
+  * `natl`: the nationality of the MEP (two-letter code)
   * `group`: the party group, simplified (from the MEP's `nfo` file)
   * `sample`: whether the MEP is represented in the data, i.e. ~ 55% of all MEPs
 

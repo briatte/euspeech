@@ -26,29 +26,29 @@ msg("Missing:", sum(is.na(speeches$text)), "full text items,",
     round(100 * sum(is.na(speeches$text)) / nrow(speeches), 1), "% of total")
 
 j = unique(speeches$titleUrl[ is.na(speeches$text) ])
-z = 60 # sleep time for occasional HTTP errors (secs)
+z = 1 # sleep time for occasional HTTP errors (secs)
 
-# AFINN
-
-file = "afinn-list.txt"
-if(!file.exists(file)) {
-
-  zip = "afinn-list.zip"
-
-  if(!file.exists(zip))
-    download("http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip", zip, mode = "wb")
-  
-  raw = readLines(unz(zip, "AFINN/AFINN-111.txt"))
-  write(raw, file)
-
-}
-
-afinn = read.delim(file, header = FALSE, stringsAsFactors = FALSE)
-names(afinn) = c("word", "score")
-
-afinn$word = tolower(afinn$word)
-afinn_pos = with(afinn, word[ score >  1 ])
-afinn_neg = with(afinn, word[ score < -1 ])
+# # AFINN
+# 
+# file = "afinn-list.txt"
+# if(!file.exists(file)) {
+# 
+#   zip = "afinn-list.zip"
+# 
+#   if(!file.exists(zip))
+#     download("http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/6010/zip/imm6010.zip", zip, mode = "wb")
+#   
+#   raw = readLines(unz(zip, "AFINN/AFINN-111.txt"))
+#   write(raw, file)
+# 
+# }
+# 
+# afinn = read.delim(file, header = FALSE, stringsAsFactors = FALSE)
+# names(afinn) = c("word", "score")
+# 
+# afinn$word = tolower(afinn$word)
+# afinn_pos = with(afinn, word[ score >  1 ])
+# afinn_neg = with(afinn, word[ score < -1 ])
 
 timer = Sys.time()
 for(i in sample(j, ifelse(is.numeric(sample), sample, length(j)))) {
@@ -56,6 +56,7 @@ for(i in sample(j, ifelse(is.numeric(sample), sample, length(j)))) {
   if(any(is.na(speeches$text[ speeches$titleUrl == i ]))) {
     
     h = try(htmlParse(i, encoding = "UTF-8"))
+    print(h)
     
     if("try-error" %in% class(h)) {
       
@@ -80,6 +81,8 @@ for(i in sample(j, ifelse(is.numeric(sample), sample, length(j)))) {
         p3 = NA
 
         } else {
+          
+          message(p[1])
         
           q = try(htmlParse(paste0("http://www.europarl.europa.eu/", p[1]), encoding = "UTF-8"))
           

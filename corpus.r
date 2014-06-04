@@ -8,77 +8,105 @@ sw = sw[ nchar(sw) > 3 ]
 
 # corpus
 
-D = with(speeches, text[ grepl("^en", lang) ])
-D = Corpus(VectorSource(D, encoding = "UTF-8"))
-
-D = tm_map(D, tolower)
-D = tm_map(D, removeWords, stopwords("en"))
-D = tm_map(D, removePunctuation)
-D = tm_map(D, removeNumbers)
-
-# polarity
-
-q = which(with(speeches, corpus & !is.nan(polarity) & is.na(polarity)))
-
-if(length(q)) {
+get_DTM <- function(D, file) {
   
-  msg("Appending", length(q), "polarity estimates...")
+  if(!file.exists(file)) {
+    
+    D = Corpus(VectorSource(D, encoding = "UTF-8"))
+    
+    D = tm_map(D, tolower)
+    D = tm_map(D, removeWords, stopwords("en"))
+    D = tm_map(D, removePunctuation)
+    D = tm_map(D, removeNumbers)
+    
+    # # polarity
+    # 
+    # q = which(with(speeches, corpus & !is.nan(polarity) & is.na(polarity)))
+    # 
+    # if(length(q)) {
+    #   
+    #   msg("Appending", length(q), "polarity estimates...")
+    # 
+    #   for(j in q)
+    #     speeches$polarity[ j ] = polarity(D[ j ], polarity.frame = polarity_frame(afinn_pos, afinn_neg))$all$polarity
+    #   
+    #   write.csv(speeches, "speeches.csv", row.names = FALSE)
+    # 
+    # }
+    
+    # document-term matrix
+    
+    DTM = DocumentTermMatrix(D, control = list(stemming = TRUE, stopwords = sw, minWordLength = 4))
+    
+    dim(DTM) # first dimension is number of docs
+    
+    msg("\nDensity of initial corpus:")
+    print(summary(col_sums(DTM)))
+    
+    # mean term frequency-inverse document frequency (tf-idf)
+    
+    term_tfidf =
+      tapply(DTM$v/row_sums(DTM)[DTM$i], DTM$j, mean) *
+      log2(nDocs(DTM) / col_sums(DTM > 0))
+    
+    # slightly above median to trim to most frequent words (Grün and Hornik 2011)
+    msg("\nSummary of tf-idf (trimming at .13):")
+    print(summary(term_tfidf))
+    
+    DTM = DTM[, term_tfidf >= .13 ] # value set after inspecting ~ 14,000 documents
+    DTM = DTM[ row_sums(DTM) > 0, ]
+    
+    msg("\nDensity of reduced corpus:")
+    print(summary(col_sums(DTM)))
+    
+    msg("\nPostprocessed matrix:")
+    print(DTM) # document-term matrix with a reduced vocabulary
+    
+    # extract vocabulary
+    
+    D = lexicalize(D, vocab = Terms(DTM))
+    
+    # master copy
 
-  for(j in q)
-    speeches$polarity[ j ] = polarity(D[ j ], polarity.frame = polarity_frame(afinn_pos, afinn_neg))$all$polarity
+    if(file == "dtm.rda") {
+      
+      speeches$subj = gsub("^(\\.|\\s)+(.*)", "\\2", speeches$subj)
+      speeches$subj = gsub("dot", ".", gsub("[[:punct:]]", "", gsub("\\.","dot", speeches$subj)))
+      
+      speeches$date = as.Date(speeches$date, "%d-%m-%Y")
+      speeches$lang = substr(speeches$lang, 1, 2)
+      
+      speeches = speeches[, c("id", "leg", "date", "lang", "corpus", "title", "proc", "subj", "also", "oeil", "titleUrl", "referenceList", "text") ]
+      
+      # subject labels
+      
+      subjects = na.omit(unlist(strsplit(speeches$subj, " ")))
+      subjects = as.data.frame(table(subjects))
+      names(subjects) = c("code", "n")
+      
+      labels = read.csv("subjects.csv", stringsAsFactors = FALSE)
+      subjects = merge(labels, subjects, by = "code", all = TRUE)
+      subjects = subjects[ order(sort(subjects$code)), ]
+      
+      save(meps, speeches, subjects, D, DTM, term_tfidf, file = file)
+      
+    } else {
+      
+      save(D, DTM, term_tfidf, file = file)
+
+    }
+    
+  }
   
-  write.csv(speeches, "speeches.csv", row.names = FALSE)
-
 }
 
-# document-term matrix
+# master document-term matrix
+get_DTM(with(speeches, text[ grepl("^en", lang) ]), "dtm.rda")
 
-D = DocumentTermMatrix(D, control = list(stemming = TRUE, stopwords = sw, minWordLength = 4))
+# corpus with procedure subject codes
+get_DTM(with(speeches, text[ grepl("^en", lang) & proc != "Debates" ]), "dtm-proc.rda")
 
-dim(D) # first dimension is number of docs
-
-msg("\nDensity of initial corpus:")
-print(summary(col_sums(D)))
-
-# mean term frequency-inverse document frequency (tf-idf)
-
-term_tfidf =
-  tapply(D$v/row_sums(D)[D$i], D$j, mean) *
-  log2(nDocs(D) / col_sums(D > 0))
-
-# slightly above median to trim to most frequent words (Grün and Hornik 2011)
-msg("\nSummary of tf-idf (trimming at .12):")
-print(summary(term_tfidf))
-
-D = D[, term_tfidf >= .12 ] # value set after inspecting ~ 65,000 documents
-D = D[ row_sums(D) > 0, ]
-
-msg("\nDensity of reduced corpus:")
-print(summary(col_sums(D)))
-
-msg("\nPostprocessed matrix:")
-print(D) # document-term matrix with a reduced vocabulary
-
-# finalize
-
-speeches$subj = gsub("^(\\.|\\s)+(.*)", "\\2", speeches$subj)
-speeches$subj = gsub("dot", ".", gsub("[[:punct:]]", "", gsub("\\.","dot", speeches$subj)))
-
-speeches$date = as.Date(speeches$date, "%d-%m-%Y")
-speeches$lang = substr(speeches$lang, 1, 2)
-
-speeches = speeches[, c("id", "leg", "date", "lang", "corpus", "title", "proc", "subj", "also", "oeil", "polarity", "titleUrl", "referenceList", "text") ]
-
-# subject labels
-
-subjects = na.omit(unlist(strsplit(speeches$subj, " ")))
-subjects = as.data.frame(table(subjects))
-names(subjects) = c("code", "n")
-
-labels = read.csv("subjects.csv", stringsAsFactors = FALSE)
-subjects = merge(labels, subjects, by = "code")
-subjects = subjects[ order(sort(subjects$code)), ]
-
-save(D, speeches, meps, subjects, file = "dtm.rda")
+# corpus from unclassified debates
+get_DTM(with(speeches, text[ grepl("^en", lang) & proc == "Debates" ]), "dtm-deba.rda")
 
 # kthxbye
