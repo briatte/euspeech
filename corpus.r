@@ -90,6 +90,37 @@ get_DTM <- function(D, file) {
       
       save(meps, speeches, subjects, D, DTM, term_tfidf, file = file)
       
+      head(subjects)
+      
+      subj = na.omit(unlist(strsplit(speeches$subj, " ")))
+      
+      h0 = as.data.frame(table(subj))
+      names(h0) = c("code", "n")
+      
+      h0 = merge(subjects[, c("code", "label") ], h0, by = "code", all.x = TRUE)
+      h0[ order(h0$code), ]
+      
+      # add total counts
+      h1 = gsub("^(\\d+)\\.(.*)", "\\1", subj)
+      h0[ h0$code %in% as.character(1:8), "n" ] = table(h1)
+      
+      # cosmetics
+      h0$label[ h0$label == "WTF?" ] = NA
+      h0$label[ h0$code %in% 1:8 ] = toupper(h0$label[ h0$code %in% 1:8 ])
+      
+      # subjects
+      head(h0)
+      write(kable(h0[ !is.na(h0$n), ], output = FALSE, row.names = FALSE), file = "subjects.md")
+      
+      # subthemes
+      h2 = as.data.frame(table(gsub("^(\\d+)\\.(\\d+)\\.(.*)", "\\1.\\2", subj)))
+      names(h2) = c("code", "n")
+      
+      h2 = merge(subjects[, c("code", "label") ], h2, by = "code")
+      h2 = rbind(h0[ h0$code %in% as.character(1:8), ], h2[ h2$label != "WTF?", ])
+      
+      write(kable(h2[ order(h2$code), ], output = FALSE, row.names = FALSE), file = "subthemes.md")
+      
     } else {
       
       save(D, DTM, term_tfidf, file = file)
