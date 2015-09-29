@@ -7,7 +7,7 @@ if(!file.exists(meps) | update) {
   html = htmlParse(html, encoding = "UTF-8")
   
   # index page
-  root = function(x) paste0("//div[@class='zone_info_mep']/div[@class='mep_details']/ul/li", x)
+  root = function(x) paste0("//div[@class='zone_info_mep ']/div[@class='mep_details']/ul/li", x)
   link = xpathSApply(html, root("[@class='mep_name']/a/@href"))
   
   name = xpathSApply(html, root("[@class='mep_name']"))
@@ -126,7 +126,7 @@ for(i in meps$link) {
     
     file = paste0("data/", j, "_cre.csv")
     
-    if(!file.exists(file) & update) {
+    if(!file.exists(file) | update) {
       
       record = lapply(1:7, function(y) get_cre(j, y))
       record = rbind.fill(record)

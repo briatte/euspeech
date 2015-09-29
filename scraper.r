@@ -56,7 +56,7 @@ for(i in sample(j, ifelse(is.numeric(sample), sample, length(j)))) {
   if(any(is.na(speeches$text[ speeches$titleUrl == i ]))) {
     
     h = try(htmlParse(i, encoding = "UTF-8"))
-    print(h)
+    # print(h)
     
     if("try-error" %in% class(h)) {
       

@@ -1,6 +1,5 @@
 
 # Download speech acts in the European Parliament, 1999-2014
-setwd("~/Documents/Code/R/euspeech")
 
 library(XML)         # parser for HTML web pages
 library(jsonlite)    # parser for JSON results
